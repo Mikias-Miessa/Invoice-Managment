@@ -4,14 +4,20 @@ import { BsArrowLeftShort } from 'react-icons/bs';
 import { RiDashboardFill } from 'react-icons/ri';
 import { MdOutlineEditCalendar } from 'react-icons/md';
 import { SiRotaryinternational } from 'react-icons/si';
+import { MdPostAdd } from 'react-icons/md';
+import Link from 'next/link';
 
 const Sidebar = () => {
   const [open, setOpen] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const Menus = [
-    { title: 'Dashboard' },
-    { title: 'Table Preview', icon: <MdOutlineEditCalendar /> },
+    { title: 'Dashboard', path: '/' },
+    {
+      title: 'Add Invoice',
+      icon: <MdPostAdd />,
+      path: '/AddInvoice',
+    },
   ];
 
   return (
@@ -45,7 +51,7 @@ const Sidebar = () => {
 
         <ul className='pt-2'>
           {Menus.map((menu, index) => (
-            <li
+            <Link
               key={index}
               className={`text-sm flex items-center gap-x-4 cursor-pointer p-1 rounded-md ${
                 activeIndex === index
@@ -53,6 +59,7 @@ const Sidebar = () => {
                   : 'hover:bg-light-white hover:bg-slate-300'
               }`}
               onClick={() => setActiveIndex(index)}
+              href={menu.path}
             >
               <span
                 className={`text-2xl block float-left ${
@@ -69,7 +76,7 @@ const Sidebar = () => {
               >
                 {menu.title}
               </span>
-            </li>
+            </Link>
           ))}
         </ul>
       </div>

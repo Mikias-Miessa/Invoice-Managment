@@ -76,8 +76,8 @@ const Dashboard = () => {
     },
   ];
   return (
-    <div className='h-screen  flex justify-center '>
-      <Table columns={columns} dataSource={data} />
+    <div className='h-screen w-full flex justify-center '>
+      <Table className='md:w-full' columns={columns} dataSource={data} />
     </div>
   );
 };
