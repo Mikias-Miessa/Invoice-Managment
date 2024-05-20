@@ -1,5 +1,7 @@
 import React from 'react';
 import { Space, Table, Tag } from 'antd';
+import { FaEdit } from 'react-icons/fa';
+import { MdDelete } from 'react-icons/md';
 const Dashboard = () => {
   const columns = [
     {
@@ -20,6 +22,11 @@ const Dashboard = () => {
       render: (service) => {
         return <p className='text-xs'>{service}</p>;
       },
+    },
+    {
+      title: 'Amount',
+      key: 'amount',
+      dataIndex: 'amount',
     },
     {
       title: 'Status',
@@ -46,8 +53,12 @@ const Dashboard = () => {
       key: 'action',
       render: () => (
         <Space size='middle'>
-          <a>Invite </a>
-          <a>Delete</a>
+          <a>
+            <FaEdit />{' '}
+          </a>
+          <a>
+            <MdDelete />
+          </a>
         </Space>
       ),
     },
@@ -59,6 +70,7 @@ const Dashboard = () => {
       client: 'Sami Cafe and Restaurant',
       service: 'Supplying goods for catering',
       tags: 'Pending',
+      amount: 1000,
     },
     {
       key: '2',
@@ -66,6 +78,7 @@ const Dashboard = () => {
       client: 'Gobeze Consult',
       service: 'Delivering several services',
       tags: 'Paid',
+      amount: 4000,
     },
     {
       key: '3',
@@ -73,6 +86,7 @@ const Dashboard = () => {
       client: 'POESA',
       service: 'Oil Supply for Desiel Engines',
       tags: 'Due',
+      amount: 7852,
     },
   ];
   return (

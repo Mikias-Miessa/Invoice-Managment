@@ -1,19 +1,45 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
-import { addInvoice } from '@/store/invoiceSlice';
-const AddInvoice = () => {
+import {
+  getInvoiceById,
+  selectInvoiceById,
+  selectInvoiceEdited,
+  selectLoading,
+  updateInvoice,
+  reset,
+} from '@/store/invoiceSlice';
+import { Bars } from 'react-loader-spinner';
+
+const editBlog = ({ params }) => {
+  const { invoiceId } = params;
   const dispatch = useDispatch();
   const router = useRouter();
+  console.log(invoiceId);
+  const invoice = useSelector(selectInvoiceById);
+  console.log(invoice);
+  const loading = useSelector(selectLoading);
+  const InvoiceEdited = useSelector(selectInvoiceEdited);
+  useEffect(() => {
+    dispatch(getInvoiceById(invoiceId));
+  }, [dispatch, invoiceId]);
 
   const [client, setClient] = useState('');
   const [service, setService] = useState('');
   const [amount, setAmount] = useState('');
   const [status, setStatus] = useState('');
 
-  const id = useRef(null);
+  useEffect(() => {
+    if (invoice) {
+      setClient(invoice.client || '');
+      setService(invoice.service || '');
+      setAmount(invoice.amount || '');
+      setStatus(invoice.status || '');
+    }
+  }, [invoice]);
+
   const handleClientChange = (e) => {
     setClient(e.target.value);
   };
@@ -26,60 +52,46 @@ const AddInvoice = () => {
   const handleStatusChange = (e) => {
     setStatus(e.target.value);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const Data = {
-      client,
-      service,
-      amount,
-      status,
+    const updatedInvoiceData = {
+      invoiceId: invoiceId,
+      invoiceData: {
+        client: client,
+        service: service,
+        status: status,
+        amount: amount,
+      },
     };
 
-    dispatch(addInvoice(Data));
-    // console.log(Data);
-    // router.push('/');
+    dispatch(updateInvoice(updatedInvoiceData));
+    setService('');
+    setClient('');
+    setAmount('');
+    setStatus('');
   };
-  // useEffect(() => {
-  //   if (newBlogAdded === 'pending') {
-  //     id.current = toast.loading('Adding blog...'); // Display loading toast
-  //   } else {
-  //     // Dismiss loading toast if it's already shown
-  //     if (id.current !== null) {
-  //       toast.dismiss(id.current);
-  //     }
-  //   }
 
-  //   if (newBlogAdded === 'success') {
-  //     toast.update(id.current, {
-  //       render: 'Blog added successfully',
-  //       type: 'success',
-  //       isLoading: false,
-  //       autoClose: 4000,
-  //     });
-  //     dispatch(reset());
-  //     setTitle('');
-  //     setContent('');
-  //     setImage('');
-  //     setQuote('');
-  //     setTag('');
-  //     setAuthor('');
-  //   }
-  //   if (newBlogAdded === 'failed') {
-  //     toast.update(id.current, {
-  //       render: 'Failed to add blog',
-  //       type: 'error',
-  //       isLoading: false,
-  //       autoClose: 4000,
-  //     });
-  //     dispatch(reset());
-  //   }
-  // }, [newBlogAdded]);
+  if (loading) {
+    return (
+      <div className=' h-screen bg-white flex justify-center items-center'>
+        <Bars
+          height='40'
+          width='40'
+          color='#FF7F00'
+          ariaLabel='bars-loading'
+          wrapperStyle={{}}
+          wrapperClass=''
+          visible={true}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className='flex justify-start pl-10 items-center bg-white py-5'>
-      <div className='max-w-md  px-4 py-4 bg-white '>
-        <h1 className='text-black font-bold text-2xl mb-4'>Add Invoice</h1>
+    <div className=' flex justify-start pl-10 items-center bg-white py-5'>
+      <div className='max-w-md  px-4 py-8 bg-white '>
+        <h1 className='text-black font-bold text-2xl mb-4'>Edit Blog</h1>
         <form onSubmit={handleSubmit}>
           <div className='mb-4'>
             <label
@@ -156,18 +168,18 @@ const AddInvoice = () => {
           <div className=''>
             <button
               type='submit'
-              className='mt-6 bg-black hover:bg-orange-500 hover:text-black text-green-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 tracking-wider'
-              //   disabled={newBlogAdded === 'pending'}
+              className='mt-6 bg-black hover:bg-orange-500 hover:text-black text-orange-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 tracking-wider'
+              //   disabled={blogEdited === 'pending'}
             >
-              {/* {newBlogAdded === 'pending' ? 'Posting...' : 'POST'} */}
-              Add
+              {/* {blogEdited === 'pending' ? 'Editing...' : 'Done'} */}
+              Done
             </button>
           </div>
         </form>
       </div>
-      {/* <ToastContainer /> */}
+      <ToastContainer />
     </div>
   );
 };
 
-export default AddInvoice;
+export default editBlog;
