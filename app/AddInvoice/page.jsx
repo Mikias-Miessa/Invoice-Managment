@@ -3,16 +3,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
-import { addInvoice } from '@/store/invoiceSlice';
+import { addInvoice, selectNewInvoiceAdded, reset } from '@/store/invoiceSlice';
 const AddInvoice = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
   const [client, setClient] = useState('');
   const [service, setService] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
   const [status, setStatus] = useState('');
-
+  const newInvoiceAdded = useSelector((state) => selectNewInvoiceAdded(state));
   const id = useRef(null);
   const handleClientChange = (e) => {
     setClient(e.target.value);
@@ -21,26 +21,65 @@ const AddInvoice = () => {
     setService(e.target.value);
   };
   const handleAmountChange = (e) => {
-    setAmount(e.target.value);
+    const value = e.target.value;
+    setAmount(value === '' ? '' : Number(value)); // Convert to number
   };
   const handleStatusChange = (e) => {
     setStatus(e.target.value);
   };
+  function generateInvoiceNumber() {
+    const randomNumber = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit random number
+    return `INV${randomNumber}`;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const invoiceNumber = generateInvoiceNumber();
     const Data = {
       client,
       service,
       amount,
       status,
+      invoiceNumber,
     };
 
     dispatch(addInvoice(Data));
     // console.log(Data);
     // router.push('/');
   };
+  useEffect(() => {
+    if (newInvoiceAdded === 'pending') {
+      id.current = toast.loading('Adding Invoice...'); // Display loading toast
+    } else {
+      // Dismiss loading toast if it's already shown
+      if (id.current !== null) {
+        toast.dismiss(id.current);
+      }
+    }
+    if (newInvoiceAdded === 'success') {
+      // router.push('/');
+      toast.update(id.current, {
+        render: 'Invoice added successfully',
+        type: 'success',
+        isLoading: false,
+        autoClose: 4000,
+      });
+      setAmount('');
+      setClient('');
+      setService('');
+      setStatus('');
+      dispatch(reset());
+    }
+    if (newInvoiceAdded === 'failed') {
+      toast.update(id.current, {
+        render: 'Failed to add invoice',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+      });
+      dispatch(reset());
+    }
+  }, [newInvoiceAdded]);
   // useEffect(() => {
   //   if (newBlogAdded === 'pending') {
   //     id.current = toast.loading('Adding blog...'); // Display loading toast
@@ -157,15 +196,14 @@ const AddInvoice = () => {
             <button
               type='submit'
               className='mt-6 bg-black hover:bg-orange-500 hover:text-black text-green-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 tracking-wider'
-              //   disabled={newBlogAdded === 'pending'}
+              disabled={newInvoiceAdded === 'pending'}
             >
-              {/* {newBlogAdded === 'pending' ? 'Posting...' : 'POST'} */}
-              Add
+              {newInvoiceAdded === 'pending' ? 'Adding...' : 'Add'}
             </button>
           </div>
         </form>
       </div>
-      {/* <ToastContainer /> */}
+      <ToastContainer />
     </div>
   );
 };

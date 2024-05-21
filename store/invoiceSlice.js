@@ -7,16 +7,30 @@ const initialState = {
   newInvoiceAdded: null,
   getInvoiceById: '',
   // selectedBlog: null,
-  // blogEdited: null,
+  invoiceEdited: null,
 };
-
+const token =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzE2MzA5NjMwLCJleHAiOjE3MTY1Njg4MzB9.ouDQTxezcnLL8Qh3UF_kF6r2_qxCYGtz9TXod3Tcw-U';
 export const addInvoice = createAsyncThunk(
   'invoice/add',
   async (invoiceData, thunkAPI) => {
     try {
-      // const res = await axios.post('/api/blogs', blogData);
-      // return res.data;
+      // Get the auth token (assuming it's stored in local storage)
+      // const token = localStorage.getItem('authToken');
       console.log(invoiceData);
+      // const token =
+      //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzE2MzA5NjMwLCJleHAiOjE3MTY1Njg4MzB9.ouDQTxezcnLL8Qh3UF_kF6r2_qxCYGtz9TXod3Tcw-U';
+
+      const res = await axios.post(
+        'http://localhost:3000/invoices/',
+        invoiceData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response.data.errors || error.message || error.toString()
@@ -29,8 +43,8 @@ export const getAllInvoice = createAsyncThunk(
   'invoice/getAll',
   async (_, thunkAPI) => {
     try {
-      const res = await axios.get('/api/blogs');
-      return res.data.blogs;
+      const res = await axios.get('http://localhost:3000/invoices/');
+      return res.data.Invoice;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response.data.errors || error.message || error.toString()
@@ -44,9 +58,16 @@ export const getInvoiceById = createAsyncThunk(
   async (invoiceId, thunkAPI) => {
     try {
       console.log(invoiceId);
-      const response = await axios.get(`/api/blogs/${blogId}`);
+      const response = await axios.get(
+        `http://localhost:3000/invoices/${invoiceId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       // console.log(response.data.blog);
-      return response.data.blog;
+      return response.data.Invoice;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response.data.errors || error.message || error.toString()
@@ -59,7 +80,15 @@ export const updateInvoice = createAsyncThunk(
   'invoice/updateInvoice',
   async ({ invoiceId, invoiceData }, thunkAPI) => {
     try {
-      const response = await axios.put(`/api/blogs/${blogId}`, blogData);
+      const response = await axios.put(
+        `http://localhost:3000/invoices/${invoiceId}`,
+        invoiceData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -112,7 +141,7 @@ export const invoiceSlice = createSlice({
       })
       .addCase(getAllInvoice.fulfilled, (state, action) => {
         state.loading = false;
-        state.blogs = action.payload;
+        state.Invoices = action.payload;
       })
       .addCase(getAllInvoice.rejected, (state, action) => {
         state.loading = false;
@@ -131,19 +160,19 @@ export const invoiceSlice = createSlice({
         state.getInvoiceById = 'failed';
       })
       .addCase(updateInvoice.pending, (state) => {
-        state.loading = true;
-        // state.invoiceEdited = 'pending';
+        // state.loading = true;
+        state.invoiceEdited = 'pending';
       })
       .addCase(updateInvoice.fulfilled, (state, action) => {
-        state.loading = false;
+        // state.loading = false;
         state.Invoices = state.Invoices.map((invoice) =>
           invoice.id === action.payload.id ? action.payload : invoice
         );
-        // state.invoiceEdited = 'success';
+        state.invoiceEdited = 'success';
       })
       .addCase(updateInvoice.rejected, (state, action) => {
-        state.loading = false;
-        // state.invoiceEdited = 'failed';
+        // state.loading = false;
+        state.invoiceEdited = 'failed';
       })
       .addCase(deleteInvoice.pending, (state) => {
         state.loading = true;

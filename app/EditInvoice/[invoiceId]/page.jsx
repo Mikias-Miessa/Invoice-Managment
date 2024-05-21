@@ -16,29 +16,65 @@ import { Bars } from 'react-loader-spinner';
 const editBlog = ({ params }) => {
   const { invoiceId } = params;
   const dispatch = useDispatch();
+  const id = useRef(null);
   const router = useRouter();
   console.log(invoiceId);
-  const invoice = useSelector(selectInvoiceById);
+  const invoice = useSelector((state) => selectInvoiceById(state));
   console.log(invoice);
   const loading = useSelector(selectLoading);
   const InvoiceEdited = useSelector(selectInvoiceEdited);
   useEffect(() => {
     dispatch(getInvoiceById(invoiceId));
-  }, [dispatch, invoiceId]);
+  }, [invoiceId]);
 
   const [client, setClient] = useState('');
   const [service, setService] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
   const [status, setStatus] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
 
   useEffect(() => {
     if (invoice) {
       setClient(invoice.client || '');
       setService(invoice.service || '');
-      setAmount(invoice.amount || '');
+      setAmount(invoice.amount || 0);
       setStatus(invoice.status || '');
+      setInvoiceNumber(invoice.invoiceNumber || '');
     }
   }, [invoice]);
+  useEffect(() => {
+    if (InvoiceEdited === 'pending') {
+      id.current = toast.loading('Editing Invoice...'); // Display loading toast
+    } else {
+      // Dismiss loading toast if it's already shown
+      if (id.current !== null) {
+        toast.dismiss(id.current);
+      }
+    }
+    if (InvoiceEdited === 'success') {
+      toast.update(id.current, {
+        render: 'Invoice edited successfully',
+        type: 'success',
+        isLoading: false,
+        autoClose: 4000,
+      });
+      setAmount(0);
+      setClient('');
+      setService('');
+      setStatus('');
+      dispatch(reset());
+      router.push('/');
+    }
+    if (InvoiceEdited === 'failed') {
+      toast.update(id.current, {
+        render: 'Failed to edit invoice',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+      });
+      dispatch(reset());
+    }
+  }, [InvoiceEdited]);
 
   const handleClientChange = (e) => {
     setClient(e.target.value);
@@ -47,7 +83,8 @@ const editBlog = ({ params }) => {
     setService(e.target.value);
   };
   const handleAmountChange = (e) => {
-    setAmount(e.target.value);
+    const value = e.target.value;
+    setAmount(value === '' ? '' : Number(value)); // Convert to number
   };
   const handleStatusChange = (e) => {
     setStatus(e.target.value);
@@ -62,14 +99,11 @@ const editBlog = ({ params }) => {
         service: service,
         status: status,
         amount: amount,
+        invoiceNumber: invoiceNumber,
       },
     };
 
     dispatch(updateInvoice(updatedInvoiceData));
-    setService('');
-    setClient('');
-    setAmount('');
-    setStatus('');
   };
 
   if (loading) {
@@ -168,11 +202,10 @@ const editBlog = ({ params }) => {
           <div className=''>
             <button
               type='submit'
-              className='mt-6 bg-black hover:bg-orange-500 hover:text-black text-orange-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 tracking-wider'
-              //   disabled={blogEdited === 'pending'}
+              className='mt-6 bg-black hover:bg-orange-500 hover:text-black text-green-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-36 tracking-wider'
+              disabled={InvoiceEdited === 'pending'}
             >
-              {/* {blogEdited === 'pending' ? 'Editing...' : 'Done'} */}
-              Done
+              {InvoiceEdited === 'pending' ? 'Editing...' : 'Done'}
             </button>
           </div>
         </form>
