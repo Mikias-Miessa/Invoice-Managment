@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import { addInvoice, selectNewInvoiceAdded, reset } from '@/store/invoiceSlice';
+import withAuth from '@/utils/withAuth';
 
 const AddInvoice = () => {
   const dispatch = useDispatch();

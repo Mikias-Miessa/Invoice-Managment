@@ -1,8 +1,23 @@
 'use client';
+
 import { Dropdown, Menu, message, Space } from 'antd';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Import the useRouter hook
+
 const Navbar = () => {
+  const router = typeof window !== 'undefined' ? useRouter() : null;
+
   const onClick = ({ key }) => {
-    message.info(`Click on item ${key}`);
+    if (key === '3') {
+      // Check if the Sign Out menu item was clicked
+      localStorage.removeItem('token'); // Remove the token from local storage
+      if (router) {
+        router.push('/Login'); // Redirect the user to the login page
+      }
+      message.info('You have been signed out.');
+    } else {
+      message.info(`Click on item ${key}`);
+    }
   };
 
   const items = [
@@ -43,7 +58,7 @@ const Navbar = () => {
             <div className='flex items-center gap-1 cursor-pointer'>
               <div className='text-end'>
                 <div className='text-black text-sm'>Amanual Belay</div>
-                <div className='text-xs text-gray-500 '>Medical Docter</div>
+                <div className='text-xs text-gray-500'>Medical Doctor</div>
               </div>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>

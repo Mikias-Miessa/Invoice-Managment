@@ -1,45 +1,47 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import LoginPage from '../app/Login/page'; // Import your login component here
-
+import { useEffect, useState } from 'react';
+import Login from '@/app/Login/page'; // Adjust the path to your Login component
+import { Bars } from 'react-loader-spinner';
 const withAuth = (WrappedComponent) => {
-  const Auth = (props) => {
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const Wrapper = (props) => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-      // You can add any logic here that needs to be executed when the component mounts
-    }, []); // Add dependencies if needed
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        if (token) {
+          setIsAuthenticated(true);
+        }
+        setIsLoading(false);
+      }
+    }, []);
 
-    if (!isAuthenticated) {
-      // If user is not authenticated, render login component
-      return <LoginPage />;
+    if (isLoading) {
+      return (
+        <div className='flex items-center justify-center h-screen bg-white'>
+          <Bars
+            height='40'
+            width='40'
+            color='#FF7F00'
+            ariaLabel='bars-loading'
+            wrapperStyle={{}}
+            wrapperClass=''
+            visible={true}
+          />
+        </div>
+      ); // Render a loading state while checking authentication
     }
 
+    // If user is not logged in, return login component
+    if (!isAuthenticated) {
+      return <Login />;
+    }
+
+    // If user is logged in, return original component
     return <WrappedComponent {...props} />;
   };
 
-  Auth.getInitialProps = async (context) => {
-    const { store, res } = context;
-
-    // Check if user is authenticated
-    const isAuthenticated = !!store.getState().auth.isAuthenticated;
-
-    if (!isAuthenticated) {
-      // Redirect to login page on the server
-      if (res) {
-        res.writeHead(302, { Location: '/Login' });
-        res.end();
-      }
-    }
-
-    return {
-      ...(WrappedComponent.getInitialProps
-        ? await WrappedComponent.getInitialProps(context)
-        : {}),
-    };
-  };
-
-  return Auth;
+  return Wrapper;
 };
 
 export default withAuth;

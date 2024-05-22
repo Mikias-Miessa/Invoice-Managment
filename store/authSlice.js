@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const initialState = {
   token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-  isAuthenticated: false,
+  isAuthenticated:
+    typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
   isSuccess: false,
   loading: true,
   user: null,
@@ -71,7 +72,7 @@ export const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.isSuccess = true;
-        state.token = action.payload.token;
+        // state.token = action.payload.token;
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.status = 'success';
