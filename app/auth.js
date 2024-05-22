@@ -2,9 +2,8 @@
 import React, { useEffect } from 'react';
 import Sidebar from '@/components/shared/Sidebar';
 import Navbar from '@/components/shared/Navbar';
+import withAuth from '@/utils/withAuth';
 // import withAuth from '@/utils/withAuth';
-import withAuth from '@/utils/new';
-
 const Auth = ({ children }) => {
   return (
     <div className='flex flex-row h-screen w-[100%] overflow-hidden'>
