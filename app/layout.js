@@ -4,6 +4,7 @@ import Navbar from '@/components/shared/Navbar';
 import Sidebar from '@/components/shared/Sidebar';
 import StoreProvider from '@/store/storeProvider';
 import 'react-toastify/dist/ReactToastify.css';
+import Auth from './auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,13 +18,7 @@ export default function RootLayout({ children }) {
     <html lang='en'>
       <body className={inter.className}>
         <StoreProvider>
-          <div className='flex flex-row h-screen w-[100%] overflow-hidden'>
-            <Sidebar />
-            <div className='flex-1 h-screen flex flex-col'>
-              <Navbar />
-              <div className='bg-white min-h-0 overflow-auto'>{children}</div>
-            </div>
-          </div>
+          <Auth children={children} />
         </StoreProvider>
       </body>
     </html>

@@ -8,9 +8,12 @@ const initialState = {
   getInvoiceById: '',
   // selectedBlog: null,
   invoiceEdited: null,
+  // token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
 };
+// const token =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzE2MzA5NjMwLCJleHAiOjE3MTY1Njg4MzB9.ouDQTxezcnLL8Qh3UF_kF6r2_qxCYGtz9TXod3Tcw-U';
 const token =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzE2MzA5NjMwLCJleHAiOjE3MTY1Njg4MzB9.ouDQTxezcnLL8Qh3UF_kF6r2_qxCYGtz9TXod3Tcw-U';
+  typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 export const addInvoice = createAsyncThunk(
   'invoice/add',
   async (invoiceData, thunkAPI) => {
@@ -102,8 +105,15 @@ export const deleteInvoice = createAsyncThunk(
   'invoices/deleteInvoice',
   async (invoiceId, thunkAPI) => {
     try {
-      await axios.delete(`/api/blogs/${blogId}`);
-      return blogId;
+      const response = await axios.delete(
+        `http://localhost:3000/invoices/${invoiceId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data.id;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response.data.errors || error.message || error.toString()

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import { addInvoice, selectNewInvoiceAdded, reset } from '@/store/invoiceSlice';
+
 const AddInvoice = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -57,7 +58,6 @@ const AddInvoice = () => {
       }
     }
     if (newInvoiceAdded === 'success') {
-      // router.push('/');
       toast.update(id.current, {
         render: 'Invoice added successfully',
         type: 'success',
@@ -69,6 +69,7 @@ const AddInvoice = () => {
       setService('');
       setStatus('');
       dispatch(reset());
+      router.push('/');
     }
     if (newInvoiceAdded === 'failed') {
       toast.update(id.current, {
