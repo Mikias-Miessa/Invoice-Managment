@@ -1,16 +1,17 @@
 'use client';
-
+import { useDispatch } from 'react-redux';
 import { Dropdown, Menu, message, Space } from 'antd';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // Import the useRouter hook
-
+import { logout } from '@/store/authSlice';
 const Navbar = () => {
   const router = typeof window !== 'undefined' ? useRouter() : null;
-
+  const dispatch = useDispatch();
   const onClick = ({ key }) => {
     if (key === '3') {
       // Check if the Sign Out menu item was clicked
-      localStorage.removeItem('token'); // Remove the token from local storage
+      // localStorage.removeItem('token'); // Remove the token from local storage
+      dispatch(logout());
       if (router) {
         router.push('/Login'); // Redirect the user to the login page
       }
@@ -21,14 +22,14 @@ const Navbar = () => {
   };
 
   const items = [
-    {
-      label: 'Profile',
-      key: '1',
-    },
-    {
-      label: 'Setting',
-      key: '2',
-    },
+    // {
+    //   label: 'Profile',
+    //   key: '1',
+    // },
+    // {
+    //   label: 'Setting',
+    //   key: '2',
+    // },
     {
       label: 'Sign Out',
       key: '3',
@@ -57,8 +58,8 @@ const Navbar = () => {
           <Dropdown overlay={menu}>
             <div className='flex items-center gap-1 cursor-pointer'>
               <div className='text-end'>
-                <div className='text-black text-sm'>Amanual Belay</div>
-                <div className='text-xs text-gray-500'>Medical Doctor</div>
+                <div className='text-black text-sm'>User</div>
+                <div className='text-xs text-gray-500'>User Information</div>
               </div>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>

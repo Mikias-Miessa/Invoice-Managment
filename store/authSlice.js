@@ -6,11 +6,12 @@ const initialState = {
   isAuthenticated:
     typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
   isSuccess: false,
-  loading: true,
+  loading: false,
   user: null,
   dashboard: null,
   error: null,
   status: '',
+  registrationStatus: '',
 };
 
 export const login = createAsyncThunk(
@@ -33,6 +34,35 @@ export const login = createAsyncThunk(
       if (res.data) {
         localStorage.setItem('token', res.data.token);
       }
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.errors) ||
+        error.message ||
+        error.toString();
+
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const Register = createAsyncThunk(
+  'auth/register',
+  async (credentials, thunkAPI) => {
+    const { email, password } = credentials;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    const body = JSON.stringify({ email, password });
+    try {
+      const res = await axios.post(
+        'http://localhost:3000/users/register',
+        body,
+        config
+      );
+
       return res.data;
     } catch (error) {
       const message =
@@ -59,7 +89,7 @@ export const authSlice = createSlice({
     reset: (state) => {
       state.isSuccess = false;
       state.error = null;
-      state.loading = true;
+      state.loading = false;
       state.status = '';
     },
   },
@@ -79,8 +109,22 @@ export const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.message;
         state.status = 'error';
+      })
+      .addCase(Register.pending, (state, action) => {
+        state.loading = true;
+        state.registrationStatus = 'pending';
+      })
+      .addCase(Register.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isSuccess = true;
+        state.registrationStatus = 'success';
+      })
+      .addCase(Register.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.registrationStatus = 'error';
       });
   },
 });

@@ -1,47 +1,58 @@
+import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import Login from '@/app/Login/page'; // Adjust the path to your Login component
+import { useRouter, usePathname } from 'next/navigation'; // Import useRouter and usePathname hooks
+import Login from '@/app/Login/page';
+import Register from '@/app/Register/page';
 import { Bars } from 'react-loader-spinner';
-const withAuth = (WrappedComponent) => {
-  const Wrapper = (props) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+
+const withAuth = (Component) => {
+  const Auth = (props) => {
+    const { isAuthenticated } = useSelector((state) => state.auth);
+    const [isClient, setIsClient] = useState(false);
+    const router = useRouter(); // Initialize useRouter hook
+    const pathname = usePathname(); // Get the current route
 
     useEffect(() => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
-        if (token) {
-          setIsAuthenticated(true);
-        }
-        setIsLoading(false);
-      }
+      setIsClient(true);
     }, []);
 
-    if (isLoading) {
+    useEffect(() => {
+      if (
+        isAuthenticated &&
+        (pathname === '/Login' || pathname === '/Register')
+      ) {
+        router.push('/'); // Redirect to '/' if authenticated and on /Login or /Register
+      }
+    }, [isAuthenticated, pathname]); // Run this effect when isAuthenticated or pathname changes
+
+    if (!isClient) {
       return (
         <div className='flex items-center justify-center h-screen bg-white'>
           <Bars
             height='40'
             width='40'
-            color='#FF7F00'
+            color='#008000'
             ariaLabel='bars-loading'
             wrapperStyle={{}}
             wrapperClass=''
             visible={true}
           />
         </div>
-      ); // Render a loading state while checking authentication
+      ); // Render nothing until client-side
     }
 
-    // If user is not logged in, return login component
-    if (!isAuthenticated) {
-      return <Login />;
+    if (!isAuthenticated && pathname !== '/Login' && pathname !== '/Register') {
+      return <Login />; // Render Login if not authenticated and not on /Login or /Register
     }
 
-    // If user is logged in, return original component
-    return <WrappedComponent {...props} />;
+    return <Component {...props} />;
   };
 
-  return Wrapper;
+  if (Component.getInitialProps) {
+    Auth.getInitialProps = Component.getInitialProps;
+  }
+
+  return Auth;
 };
 
 export default withAuth;

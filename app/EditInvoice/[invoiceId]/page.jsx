@@ -112,7 +112,7 @@ const editBlog = ({ params }) => {
         <Bars
           height='40'
           width='40'
-          color='#FF7F00'
+          color='#008000'
           ariaLabel='bars-loading'
           wrapperStyle={{}}
           wrapperClass=''
